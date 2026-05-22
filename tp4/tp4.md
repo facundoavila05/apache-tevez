@@ -186,6 +186,30 @@ ni en memoria ni en disco, el dispositivo no funciona — no aparece en
 `/dev`, no puede ser usado por ningún programa. El kernel registra en
 `dmesg` que no encontró el driver para ese dispositivo.
 
+
+#### 5. ¿Qué diferencia existe entre un módulo y un programa ?
+La diferencia principal está en el entorno donde se ejecutan y en el nivel de acceso que poseen. Un programa se ejecuta en el espacio de usuario, un entorno restringido que no permite el acceso directo al hardware ni a la memoria física. Su ejecución suele seguir un flujo lineal: comienza en la función main(), ejecuta sus instrucciones y luego retorna el control al sistema operativo o al proceso que lo invocó.
+
+En cambio, un módulo del kernel se ejecuta dentro del espacio de kernel, con privilegios máximos (Ring 0). A diferencia de un programa convencional, no posee una función main(), sino que funciona mediante eventos. Su ejecución comienza con una función module_init(), mediante la cual el módulo se registra en el kernel e informa la funcionalidad que ofrece, quedando luego disponible para ser utilizado cuando el sistema lo requiera. Asimismo, los módulos deben contar con una función de salida module_exit(), encargada de liberar recursos y desvincular el módulo del kernel. Debido a que se ejecuta en el núcleo del sistema, no pueden utilizar librerías de usuario y deben recurrir a las funciones internas provistas por el kernel.
+
+#### 6 ¿Cómo puede ver una lista de las llamadas al sistema que realiza un simple helloworld en c?
+
+Un programa  como un simple helloworld en copera en entorno restringido y no puede interactuar directamente con el hardware. Para poder imprimir en pantalla, debe pedirle al Kernel que lo haga por él mediante Llamadas al Sistema (System Calls), como la función write().
+
+Para ver la lista de estas peticiones en tiempo real, se utiliza la herramienta `strace`. Ejecutando en la terminal:
+
+``strace ./helloworld``
+
+De esta forma, se interceptan y muestran absolutamente todas las llamadas al sistema (como execve, mmap, write y exit) que el programa le solicita al Kernel desde su inicio hasta su fin.
+
+#### 7 ¿Qué es un segmentation fault? ¿Cómo lo maneja el kernel y como lo hace un programa?
+
+Un Segmentation Fault es un error de acceso a memoria. Ocurre cuando un código intenta acceder a una dirección de memoria virtual que no tiene permitida (fuera de su espacio asignado) o intenta realizar una operación inválida en ella (como escribir en un segmento de memoria de solo lectura).
+
+Cuando este error ocurre en un programa de usuario, la Unidad de Gestión de Memoria (MMU) del hardware detecta el acceso inválido y genera una excepción. El kernel intercepta dicha excepción y envía al proceso una señal denominada SIGSEGV (Segmentation Violation), finalizando su ejecución de forma controlada. De esta manera, el programa que produjo el error se cierra y sus recursos son liberados, mientras que el resto del sistema continúa funcionando normalmente.
+
+En cambio, si el fallo ocurre dentro de un módulo del kernel, la situación es mucho más crítica. Los módulos se ejecutan directamente en el Espacio de Kernel y comparten la memoria del propio sistema operativo, por lo que un acceso inválido puede corromper estructuras internas fundamentales. Debido a que no existe un nivel de privilegio superior al kernel capaz de aislar o finalizar el módulo de manera segura, el sistema entra en un estado de error grave conocido como Kernel Panic. Ante esta situación, el sistema operativo detiene su ejecución para evitar daños mayores o corrupción de datos, siendo generalmente necesario reiniciar el equipo.
+
 #### 9. Agregar evidencia de la compilación, carga y descarga de su propio módulo imprimiendo el nombre del equipo en los registros del kernel.
 
 Se modificó `mimodulo.c` para imprimir el nombre del equipo en los
