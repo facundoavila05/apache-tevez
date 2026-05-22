@@ -134,7 +134,45 @@ La frontera entre ambos es una barrera de hardware - el procesador mismo la impo
 
 ### Espacio de datos.
 
-### Drivers. Investigar contenido de /dev.
+El espacio de datos es la región de memoria asignada a un proceso para almacenar su información durante la ejecución. Se divide en segmentos bien definidos:
+
+![alt text](image-1.png)
+
+Cada proceso recibe su propio espacio de datos virtual, dividido en estos segmentos:
+
+| Segmento | Contenido                                           | Características                                    |
+| -------- | --------------------------------------------------- | -------------------------------------------------- |
+| Stack    | Variables locales, parámetros, dirección de retorno | Tamaño fijo, gestión automática, crece hacia abajo |
+| Heap     | Memoria pedida dinámicamente (`malloc`, `new`)      | Tamaño variable, el programador la gestiona        |
+| BSS      | Variables globales/estáticas no inicializadas       | Inicializadas en 0 al cargar el programa           |
+| Data     | Variables globales/estáticas con valor inicial      | Almacenadas en el ejecutable                       |
+| Text     | El código máquina del programa                      | Solo lectura, compartible entre procesos           |
+
+Cada proceso ve su propio espacio de memoria privado. Por su parte, el kernel usa la MMU (unidad de gestión de memoria) para que dos procesos no puedan pisarse mutuamente.
+
+---
+
+### Drivers. Contenido de /dev
+
+Un driver (controlador de dispositivo) es el software que le permite al kernel hablar con un hardware específico. Sin drivers, el sistema operativo no sabría cómo enviar datos a una placa de red, leer un disco o recibir señal de un teclado. Actúan como traductores entre las llamadas abstractas del SO y las instrucciones específicas del hardware.
+
+En Linux, todo dispositivo se representa como un archivo dentro del directorio /dev. Esto es el principio filosófico "todo es un archivo" — se interactúa con hardware usando las mismas funciones que con archivos (open, read, write, close).
+
+![alt text](image-2.png)
+
+### Tipos de archivos en /dev:
+
+- Dispositivos de bloque: transfieren datos en bloques de tamaño fijo. Son los discos y particiones. Se pueden acceder de forma aleatoria (saltar a cualquier bloque). Ejemplos: /dev/sda (disco SATA), /dev/nvme0n1 (disco NVMe), /dev/sda1 (primera partición).
+
+- Dispositivos de carácter: transfieren datos byte a byte, de forma secuencial. Son terminales, puertos serie, mouse, teclado, cámara. Ejemplos: /dev/tty (terminal activa), /dev/ttyS0 (puerto COM1), /dev/input/mouse0.
+
+- Pseudo-dispositivos: no corresponden a hardware físico, pero son extremadamente útiles:
+
+- /dev/null — "agujero negro": todo lo que se escribe ahí desaparece.
+- /dev/zero — devuelve bytes en cero infinitamente (útil para borrar discos).
+- /dev/random y /dev/urandom — generan bytes aleatorios criptográficamente seguros.
+
+- Entradas estándar (/dev/stdin, /dev/stdout, /dev/stderr): son los canales de entrada/salida estándar de cualquier proceso, accesibles como archivos.
 
 ## Preguntas
 
@@ -162,7 +200,7 @@ Las diferencias concretas son:
 - **Dependencias**: `des_generic` depende de `libdes`. `mimodulo` no tiene
   dependencias.
 
-#### 2. ¿Qué divers/modulos estan cargados en sus propias pc?
+#### 2. ¿Qué divers/módulos están cargados en sus propias pc?
 
 ![](/tp4/Img/lsmod-salinasjoaquin.png)
 
@@ -186,19 +224,38 @@ ni en memoria ni en disco, el dispositivo no funciona — no aparece en
 `/dev`, no puede ser usado por ningún programa. El kernel registra en
 `dmesg` que no encontró el driver para ese dispositivo.
 
+#### 4. Correr hwinfo en una pc real con hw real y agregar la url de la información de hw en el reporte.
+
+Utilizando el programa hwinfo, se obtuvo la información de hardware de la computadora de facundo, y con bsd-netcat se puede consultar la información a traves de la siguiente url: https://termbin.com/bidg
+
+![alt text](image-3.png)
+
+El hardware detectado a través de hwinfo es el siguiente:
+
+| Componente     | Detalle                                                                      |
+| -------------- | ---------------------------------------------------------------------------- |
+| CPU            | Intel Core i5-12400F (12ª gen, 6 cores / 12 threads, hasta 4.0 GHz)          |
+| RAM            | 16 GB                                                                        |
+| GPU            | Sapphire Radeon RX 6700 (AMD Navi 22, driver: amdgpu)                        |
+| Almacenamiento | WD_BLACK SN850X 1000GB (NVMe), WDC WD10EZEX-00B (HDD), Kingston SA400S (SSD) |
+| Red            | Intel Ethernet Connection I219-V (driver: e1000e)                            |
+| Monitor        | VH2410                                                                       |
+| Arquitectura   | x86-64                                                                       |
+| Kernel         | Linux (Arch Linux)                                                           |
 
 #### 5. ¿Qué diferencia existe entre un módulo y un programa ?
+
 La diferencia principal está en el entorno donde se ejecutan y en el nivel de acceso que poseen. Un programa se ejecuta en el espacio de usuario, un entorno restringido que no permite el acceso directo al hardware ni a la memoria física. Su ejecución suele seguir un flujo lineal: comienza en la función main(), ejecuta sus instrucciones y luego retorna el control al sistema operativo o al proceso que lo invocó.
 
 En cambio, un módulo del kernel se ejecuta dentro del espacio de kernel, con privilegios máximos (Ring 0). A diferencia de un programa convencional, no posee una función main(), sino que funciona mediante eventos. Su ejecución comienza con una función module_init(), mediante la cual el módulo se registra en el kernel e informa la funcionalidad que ofrece, quedando luego disponible para ser utilizado cuando el sistema lo requiera. Asimismo, los módulos deben contar con una función de salida module_exit(), encargada de liberar recursos y desvincular el módulo del kernel. Debido a que se ejecuta en el núcleo del sistema, no pueden utilizar librerías de usuario y deben recurrir a las funciones internas provistas por el kernel.
 
 #### 6 ¿Cómo puede ver una lista de las llamadas al sistema que realiza un simple helloworld en c?
 
-Un programa  como un simple helloworld en copera en entorno restringido y no puede interactuar directamente con el hardware. Para poder imprimir en pantalla, debe pedirle al Kernel que lo haga por él mediante Llamadas al Sistema (System Calls), como la función write().
+Un programa como un simple helloworld en copera en entorno restringido y no puede interactuar directamente con el hardware. Para poder imprimir en pantalla, debe pedirle al Kernel que lo haga por él mediante Llamadas al Sistema (System Calls), como la función write().
 
 Para ver la lista de estas peticiones en tiempo real, se utiliza la herramienta `strace`. Ejecutando en la terminal:
 
-``strace ./helloworld``
+`strace ./helloworld`
 
 De esta forma, se interceptan y muestran absolutamente todas las llamadas al sistema (como execve, mmap, write y exit) que el programa le solicita al Kernel desde su inicio hasta su fin.
 
@@ -209,6 +266,38 @@ Un Segmentation Fault es un error de acceso a memoria. Ocurre cuando un código 
 Cuando este error ocurre en un programa de usuario, la Unidad de Gestión de Memoria (MMU) del hardware detecta el acceso inválido y genera una excepción. El kernel intercepta dicha excepción y envía al proceso una señal denominada SIGSEGV (Segmentation Violation), finalizando su ejecución de forma controlada. De esta manera, el programa que produjo el error se cierra y sus recursos son liberados, mientras que el resto del sistema continúa funcionando normalmente.
 
 En cambio, si el fallo ocurre dentro de un módulo del kernel, la situación es mucho más crítica. Los módulos se ejecutan directamente en el Espacio de Kernel y comparten la memoria del propio sistema operativo, por lo que un acceso inválido puede corromper estructuras internas fundamentales. Debido a que no existe un nivel de privilegio superior al kernel capaz de aislar o finalizar el módulo de manera segura, el sistema entra en un estado de error grave conocido como Kernel Panic. Ante esta situación, el sistema operativo detiene su ejecución para evitar daños mayores o corrupción de datos, siendo generalmente necesario reiniciar el equipo.
+
+#### 8. ¿Se animan a intentar firmar un módulo de kernel ? y documentar el proceso ? https://askubuntu.com/questions/770205/how-to-sign-kernel-modules-with-sign-file
+
+Cuando Secure Boot está activo, el kernel solo carga módulos firmados con una clave de confianza. Este proceso documenta cómo generar un par de claves y firmar un módulo existente.
+
+### Herramientas utilizadas
+
+- `openssl` — generación del par de claves RSA
+- `sign-file` — script incluido en los headers del kernel
+- `zstd` — para descomprimir el módulo antes de firmarlo
+
+Módulo elegido: `e1000e` — driver de la placa de red Intel Ethernet Connection I219-V
+
+### Proceso
+
+**1. Generar el par de claves:**
+
+![alt text](image-4.png)
+
+**2. Copiar y descomprimir el módulo:**
+
+![alt text](image-5.png)
+
+**3. Firmar el módulo descomprimido:**
+
+![alt text](image-6.png)
+
+**4. Verificar la firma:**
+
+![alt text](image-7.png)
+
+El módulo `e1000e` fue firmado exitosamente con una clave RSA de 2048 bits usando sha256 como algoritmo de hash. Para que el kernel confíe en esta firma en un sistema con Secure Boot activo, sería necesario registrar el certificado público mediante `mokutil --import signing_cert.pem` y reiniciar para confirmar la clave en el MOK Manager.
 
 #### 9. Agregar evidencia de la compilación, carga y descarga de su propio módulo imprimiendo el nombre del equipo en los registros del kernel.
 
@@ -249,10 +338,9 @@ sudo mokutil --import mi_clave_pub.der
 
 Recién ahí su kernel confiaría en módulos firmados con mi clave privada.
 
+#### 11. Dada la siguiente nota https://arstechnica.com/security/2024/08/a-patch-microsoft-spent-2-years-preparing-is-making-a-mess-for-some-linux-users/
 
-#### 11. Dada la siguiente nota https://arstechnica.com/security/2024/08/a-patch-microsoft-spent-2-years-preparing-is-making-a-mess-for-some-linux-users/ 
-
-#####  a. ¿Cuál fue la consecuencia principal del parche de Microsoft sobre GRUB en sistemas con arranque dual (Linux y Windows)?
+##### a. ¿Cuál fue la consecuencia principal del parche de Microsoft sobre GRUB en sistemas con arranque dual (Linux y Windows)?
 
 La consecuencia principal fue que muchos sistemas con arranque dual (dual-boot) dejaron de arrancar en Linux, quedando completamente inutilizados al intentar iniciar ese sistema operativo.
 
@@ -263,6 +351,7 @@ Al encender la computadora e intentar cargar Linux mediante el gestor de arranqu
 Esto ocurrió porque el parche de Windows aplicó una actualización de SBAT (Secure Boot Advanced Targeting) para bloquear versiones antiguas y vulnerables de GRUB (asociadas a la vulnerabilidad de desbordamiento de búfer CVE-2022-2601). Aunque Microsoft aseguró que la restricción no se aplicaría a sistemas con arranque dual configurado, un fallo en la distribución del parche provocó que sí se instalara en estas computadoras, bloqueando las firmas digitales de varios gestores de arranque de distribuciones populares como Ubuntu, Debian, Linux Mint y Zorin OS.
 
 ##### b. ¿Qué implicancia tiene desactivar Secure Boot como solución al problema descrito en el artículo?
+
 Desactivar Secure Boot en la BIOS/UEFI funciona como la solución inmediata (o bypass temporal) para poder volver a ingresar a Linux y limpiar las políticas de SBAT corruptas mediante la terminal (usando comandos como sudo mokutil --set-sbat-policy delete).
 
 Sin embargo, mantenerlo desactivado de forma permanente tiene implicancias negativas en la seguridad:
@@ -274,6 +363,7 @@ Vulnerabilidad ante malware de arranque: El equipo queda expuesto a ataques de n
 Restricciones en Windows: Algunas funciones avanzadas de aislamiento de núcleo en Windows o aplicaciones muy específicas (como ciertos sistemas antitrampas de videojuegos modernos) requieren obligatoriamente que Secure Boot esté activo para ejecutarse.
 
 ##### c. ¿Cuál es el propósito principal del Secure Boot en el proceso de arranque de un sistema?
+
 El propósito principal de Secure Boot (Arranque Seguro) es garantizar que una computadora arranque utilizando únicamente software en el que confía el fabricante del equipo (OEM).
 
 Durante el encendido, el firmware UEFI intercepta la carga de cada pieza de código inicial —incluyendo el cargador de arranque (como GRUB o el Windows Boot Manager), los controladores de firmware UEFI y los módulos del kernel—. Antes de ejecutarlos, verifica sus firmas criptográficas contra una base de datos de claves públicas e índices autorizados almacenados de forma segura en el hardware. Si el código está firmado por una entidad de confianza (como Microsoft o las claves de las distribuciones de Linux validadas), se permite su ejecución; si la firma no coincide, está ausente o ha sido revocada (como intentó hacer el parche mediante SBAT), el proceso se detiene de inmediato para evitar que software malicioso tome el control total del hardware.
