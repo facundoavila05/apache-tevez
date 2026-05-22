@@ -88,7 +88,6 @@ Cuando un módulo se carga sin firma (como ocurre con mimodulo.ko), el kernel lo
 
 La palabra "tainting" indica que el kernel fue "contaminado" con
 código no verificado, lo cual es una señal de advertencia de seguridad.
-=======
 
 ## Desafío #2
 
