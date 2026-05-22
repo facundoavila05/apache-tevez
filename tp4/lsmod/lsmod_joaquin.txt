@@ -1,0 +1,126 @@
+Module                  Size  Used by
+tls                   155648  0
+rfcomm                 98304  4
+snd_seq_dummy          12288  0
+snd_hrtimer            12288  1
+nvidia_uvm           2052096  0
+cmac                   12288  3
+algif_hash             16384  1
+algif_skcipher         12288  1
+af_alg                 32768  6 algif_hash,algif_skcipher
+bnep                   32768  2
+binfmt_misc            24576  1
+nvidia_drm            139264  20
+amd_atl                69632  1
+qrtr_mhi               16384  0
+intel_rapl_msr         20480  0
+nls_iso8859_1          12288  1
+intel_rapl_common      53248  1 intel_rapl_msr
+nvidia_modeset       1744896  26 nvidia_drm
+qrtr                   53248  5 qrtr_mhi
+amdgpu              20107264  5
+edac_mce_amd           28672  0
+ath12k                958464  0
+snd_hda_codec_alc662    20480  1
+kvm_amd               241664  0
+qmi_helpers            28672  1 ath12k
+snd_hda_codec_realtek_lib    65536  1 snd_hda_codec_alc662
+snd_hda_codec_atihdmi    24576  1
+snd_hda_codec_nvhdmi    16384  1
+spd5118                12288  0
+snd_hda_codec_generic   122880  2 snd_hda_codec_alc662,snd_hda_codec_realtek_lib
+snd_hda_codec_hdmi     65536  2 snd_hda_codec_nvhdmi,snd_hda_codec_atihdmi
+nvidia              14794752  368 nvidia_uvm,nvidia_modeset
+uvcvideo              143360  0
+kvm                  1445888  1 kvm_amd
+mac80211             1851392  1 ath12k
+videobuf2_vmalloc      20480  1 uvcvideo
+snd_hda_intel          61440  3
+amdxcp                 12288  1 amdgpu
+uvc                    12288  1 uvcvideo
+videobuf2_memops       16384  1 videobuf2_vmalloc
+snd_hda_codec         204800  7 snd_hda_codec_generic,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec_alc662,snd_hda_codec_nvhdmi,snd_hda_codec_realtek_lib,snd_hda_codec_atihdmi
+btusb                  77824  0
+drm_panel_backlight_quirks    12288  1 amdgpu
+btrtl                  32768  1 btusb
+videobuf2_v4l2         36864  1 uvcvideo
+snd_usb_audio         573440  3
+irqbypass              16384  1 kvm
+gpu_sched              65536  1 amdgpu
+btintel                69632  1 btusb
+polyval_clmulni        12288  0
+snd_hda_core          143360  7 snd_hda_codec_generic,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec_alc662,snd_hda_codec,snd_hda_codec_realtek_lib,snd_hda_codec_atihdmi
+ghash_clmulni_intel    12288  0
+drm_buddy              28672  1 amdgpu
+videobuf2_common       86016  4 videobuf2_vmalloc,videobuf2_v4l2,uvcvideo,videobuf2_memops
+aesni_intel            98304  3
+drm_exec               12288  1 amdgpu
+snd_intel_dspcfg       45056  1 snd_hda_intel
+drm_suballoc_helper    24576  1 amdgpu
+i2c_piix4              32768  0
+btbcm                  24576  1 btusb
+snd_intel_sdw_acpi     16384  1 snd_intel_dspcfg
+snd_usbmidi_lib        57344  1 snd_usb_audio
+drm_display_helper    290816  1 amdgpu
+btmtk                  36864  1 btusb
+snd_ctl_led            24576  0
+videodev              364544  2 videobuf2_v4l2,uvcvideo
+rapl                   20480  0
+wmi_bmof               12288  0
+snd_hwdep              24576  2 snd_usb_audio,snd_hda_codec
+snd_ump                45056  1 snd_usb_audio
+k10temp                16384  0
+i2c_smbus              20480  1 i2c_piix4
+snd_seq_midi           24576  0
+cfg80211             1462272  2 ath12k,mac80211
+snd_pcm               200704  6 snd_hda_codec_hdmi,snd_hda_intel,snd_usb_audio,snd_hda_codec,snd_hda_core
+cec                    98304  2 drm_display_helper,amdgpu
+snd_seq_midi_event     16384  1 snd_seq_midi
+snd_rawmidi            57344  3 snd_seq_midi,snd_usbmidi_lib,snd_ump
+bluetooth            1032192  34 btrtl,btmtk,btintel,btbcm,bnep,btusb,rfcomm
+rc_core                73728  1 cec
+mc                     81920  5 videodev,snd_usb_audio,videobuf2_v4l2,uvcvideo,videobuf2_common
+snd_seq               122880  9 snd_seq_midi,snd_seq_midi_event,snd_seq_dummy
+libarc4                12288  1 mac80211
+i2c_algo_bit           16384  1 amdgpu
+qcom_scm               53248  1 ath12k
+snd_seq_device         16384  4 snd_seq,snd_seq_midi,snd_ump,snd_rawmidi
+qcom_tzmem             20480  1 qcom_scm
+drm_ttm_helper         16384  3 amdgpu,nvidia_drm
+snd_timer              53248  3 snd_seq,snd_hrtimer,snd_pcm
+mhi                   139264  2 ath12k,qrtr_mhi
+ttm                   126976  2 amdgpu,drm_ttm_helper
+snd                   143360  28 snd_ctl_led,snd_hda_codec_generic,snd_seq,snd_seq_device,snd_hda_codec_hdmi,snd_hwdep,snd_hda_intel,snd_usb_audio,snd_usbmidi_lib,snd_hda_codec,snd_timer,snd_hda_codec_realtek_lib,snd_ump,snd_pcm,snd_rawmidi
+ccp                   159744  1 kvm_amd
+soundcore              16384  2 snd_ctl_led,snd
+amd_3d_vcache          12288  0
+gpio_amdpt             16384  0
+acpi_pad              184320  0
+joydev                 32768  0
+input_leds             12288  0
+mac_hid                12288  0
+sch_fq_codel           24576  2
+msr                    12288  0
+parport_pc             53248  0
+ppdev                  24576  0
+lp                     32768  0
+parport                73728  3 parport_pc,lp,ppdev
+efi_pstore             12288  0
+nfnetlink              20480  1
+dmi_sysfs              20480  0
+ip_tables              32768  0
+x_tables               65536  1 ip_tables
+autofs4                57344  2
+hid_generic            12288  0
+usbhid                 77824  0
+hid                   262144  2 usbhid,hid_generic
+nvme                   61440  3
+r8169                 139264  0
+nvme_core             233472  4 nvme
+ahci                   49152  0
+realtek                49152  1
+libahci                53248  1 ahci
+nvme_keyring           20480  1 nvme_core
+nvme_auth              28672  1 nvme_core
+video                  77824  2 amdgpu,nvidia_modeset
+wmi                    28672  2 video,wmi_bmof
