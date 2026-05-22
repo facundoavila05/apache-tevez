@@ -224,3 +224,32 @@ sudo mokutil --import mi_clave_pub.der
 ```
 
 Recién ahí su kernel confiaría en módulos firmados con mi clave privada.
+
+
+#### 11. Dada la siguiente nota https://arstechnica.com/security/2024/08/a-patch-microsoft-spent-2-years-preparing-is-making-a-mess-for-some-linux-users/ 
+
+#####  a. ¿Cuál fue la consecuencia principal del parche de Microsoft sobre GRUB en sistemas con arranque dual (Linux y Windows)?
+
+La consecuencia principal fue que muchos sistemas con arranque dual (dual-boot) dejaron de arrancar en Linux, quedando completamente inutilizados al intentar iniciar ese sistema operativo.
+
+Al encender la computadora e intentar cargar Linux mediante el gestor de arranque GRUB, los usuarios se encontraban con un bloqueo del sistema y pantallas de error con mensajes críticos como:
+
+"Verifying shim SBAT data failed: Security Policy Violation. Something has gone seriously wrong: SBAT self-check failed: Security Policy Violation".
+
+Esto ocurrió porque el parche de Windows aplicó una actualización de SBAT (Secure Boot Advanced Targeting) para bloquear versiones antiguas y vulnerables de GRUB (asociadas a la vulnerabilidad de desbordamiento de búfer CVE-2022-2601). Aunque Microsoft aseguró que la restricción no se aplicaría a sistemas con arranque dual configurado, un fallo en la distribución del parche provocó que sí se instalara en estas computadoras, bloqueando las firmas digitales de varios gestores de arranque de distribuciones populares como Ubuntu, Debian, Linux Mint y Zorin OS.
+
+##### b. ¿Qué implicancia tiene desactivar Secure Boot como solución al problema descrito en el artículo?
+Desactivar Secure Boot en la BIOS/UEFI funciona como la solución inmediata (o bypass temporal) para poder volver a ingresar a Linux y limpiar las políticas de SBAT corruptas mediante la terminal (usando comandos como sudo mokutil --set-sbat-policy delete).
+
+Sin embargo, mantenerlo desactivado de forma permanente tiene implicancias negativas en la seguridad:
+
+Pérdida de la raíz de confianza: El sistema operativo pierde la capacidad de verificar si el firmware, el cargador de arranque o los módulos principales del kernel han sido alterados o reemplazados por software malicioso.
+
+Vulnerabilidad ante malware de arranque: El equipo queda expuesto a ataques de nivel de firmware, como rootkits o bootkits, que se ejecutan antes de que el antivirus o las protecciones del sistema operativo puedan cargarse.
+
+Restricciones en Windows: Algunas funciones avanzadas de aislamiento de núcleo en Windows o aplicaciones muy específicas (como ciertos sistemas antitrampas de videojuegos modernos) requieren obligatoriamente que Secure Boot esté activo para ejecutarse.
+
+##### c. ¿Cuál es el propósito principal del Secure Boot en el proceso de arranque de un sistema?
+El propósito principal de Secure Boot (Arranque Seguro) es garantizar que una computadora arranque utilizando únicamente software en el que confía el fabricante del equipo (OEM).
+
+Durante el encendido, el firmware UEFI intercepta la carga de cada pieza de código inicial —incluyendo el cargador de arranque (como GRUB o el Windows Boot Manager), los controladores de firmware UEFI y los módulos del kernel—. Antes de ejecutarlos, verifica sus firmas criptográficas contra una base de datos de claves públicas e índices autorizados almacenados de forma segura en el hardware. Si el código está firmado por una entidad de confianza (como Microsoft o las claves de las distribuciones de Linux validadas), se permite su ejecución; si la firma no coincide, está ausente o ha sido revocada (como intentó hacer el parche mediante SBAT), el proceso se detiene de inmediato para evitar que software malicioso tome el control total del hardware.
